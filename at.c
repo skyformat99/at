@@ -2,46 +2,76 @@
 
 #include <stdio.h>
 #include "at.h"
-#define AT_DELAY 1000
+
+#ifndef AT_BUFFER_SIZE
+#define AT_BUFFER_SIZE 32
+#endif
 
 void ( *ATOutputFunction )( const char * );
-void ( *ATDelayFunction )( float );
+void ( *ATDelayFunction )( double );
 
-char ATBuffer[24];
+char ATBuffer[AT_BUFFER_SIZE];
 
-void ATInit( void ( *ATOutputFunc )( const char * ), void ( *ATDelayFunc )( float ) ) //Init AT function pointers
+double ATDelay;
+
+void ATInit( void ( *ATOutputFunc )( const char * ), void ( *ATDelayFunc )( double ), double DelayTime ) //Init AT function pointers
 {
     ATOutputFunction = ATOutputFunc;
     ATDelayFunction = ATDelayFunc;
+    ATDelay = DelayTime;
 }
 
 
-void AT( ) //Send AT command to check if everything is OK
-{
-    ( *ATOutputFunction )( "AT" );
-    if( ATDelayFunction != 0 ) ( *ATDelayFunction )( AT_DELAY );
-}
+////Dialing functions//
 
 void ATDialNumber( const char *Number ) //Call given phone number
 {
     sprintf( ATBuffer, "ATD%s;", Number ); //Concatenate phone number with command
     ( *ATOutputFunction )( ATBuffer );
-    if( ATDelayFunction != 0 ) ( *ATDelayFunction )( AT_DELAY );
+    if( ATDelayFunction != 0 ) ( *ATDelayFunction )( ATDelay );
 }
 
-void ATSendSMS( const char *Number, const char *Text )
+void ATAcceptCall( ) //Accept incoming call
+{
+    ( *ATOutputFunction )( "ATA" );
+    if( ATDelayFunction != 0 ) ( *ATDelayFunction )( ATDelay );
+}
+
+void ATRejectCall( ) //Reject incoming call
+{
+    ( *ATOutputFunction )( "ATH" );
+    if( ATDelayFunction != 0 ) ( *ATDelayFunction )( ATDelay );
+}
+
+////SMS functions////
+
+void ATSendSMS( const char *Number, const char *Text ) //Send given text to given phone number
 {
     ( *ATOutputFunction )( "AT+CMGF=1" ); //Init sending SMS message
-    if( ATDelayFunction != 0 ) ( *ATDelayFunction )( AT_DELAY );
+    if( ATDelayFunction != 0 ) ( *ATDelayFunction )( ATDelay );
 
     sprintf( ATBuffer, "AT+CMGS=\"%s\"", Number ); //Concatenate phone number with command
     ( *ATOutputFunction )( ATBuffer );
-    if( ATDelayFunction != 0 ) ( *ATDelayFunction )( AT_DELAY );
+    if( ATDelayFunction != 0 ) ( *ATDelayFunction )( ATDelay );
 
     ( *ATOutputFunction )( Text ); //Output message text
-    if( ATDelayFunction != 0 ) ( *ATDelayFunction )( AT_DELAY );
+    if( ATDelayFunction != 0 ) ( *ATDelayFunction )( ATDelay );
 
-    sprintf( ATBuffer, "%c", 0x1d ); //Create Ctrl+Z escape code to end transmission
+    sprintf( ATBuffer, "%c", 26 ); //Create Ctrl+Z escape code to end transmission
     ( *ATOutputFunction )( ATBuffer );
-    if( ATDelayFunction != 0 ) ( *ATDelayFunction )( AT_DELAY );
+    if( ATDelayFunction != 0 ) ( *ATDelayFunction )( ATDelay );
+}
+
+////Other functions////
+
+void AT( ) //Send AT command to check if everything is OK
+{
+    ( *ATOutputFunction )( "AT" );
+    if( ATDelayFunction != 0 ) ( *ATDelayFunction )( ATDelay );
+}
+
+void ATSignalQuality( )
+{
+    ( *ATOutputFunction )( "AT+CSQ" );
+    if( ATDelayFunction != 0 ) ( *ATDelayFunction )( ATDelay );
 }
