@@ -37,16 +37,16 @@ int main( )
     AT( ); //Request AT
     printf( "\n" ); //New line
 
-    ATDialNumber( "500750818" ); //Dial number
+    ATDialNumber( "55750818" ); //Dial number
     printf( "\n" ); //New line
 
-    ATSendSMS( "500750818", "Hi John!" );
+    ATSendSMS( "555750818", "Hi John!" ); //Send text
     printf( "\n" ); //New line
 
-    ATAcceptCall( );
+    ATAcceptCall( ); //Accept incoming call
     printf( "\n" ); //New line
 
-    ATRejectCall( );
+    ATRejectCall( ); //Reject incoming call
     printf( "\n" ); //New line
 
     return 0;
