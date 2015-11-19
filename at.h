@@ -13,3 +13,4 @@ extern void ATSendSMS( const char *, const char * ); //Send given text to given 
 
 //Other//
 extern void AT( ); //Send AT command to check if everything is OK
+extern void ATSignalQuality( ); //Check signal quality
