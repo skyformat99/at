@@ -26,9 +26,9 @@ This is very basic code for testing AT library. Everything should be clear.
 
 #include "AT/at.h"
 
-void Sleep( double Usec )
+void Sleep( double sec )
 {
-    usleep( (useconds_t)( Usec * 1000000.0 ) );
+    usleep( (useconds_t)( sec * 1000000.0 ) );
 }
 
 int main( )
