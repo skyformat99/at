@@ -26,20 +26,20 @@ void ATInit( void ( *ATOutputFunc )( const char * ), void ( *ATDelayFunc )( doub
 
 void ATDialNumber( const char *Number ) //Call given phone number
 {
-    sprintf( ATBuffer, "ATD%s;", Number ); //Concatenate phone number with command
+    sprintf( ATBuffer, "ATD%s;\n\r", Number ); //Concatenate phone number with command
     ( *ATOutputFunction )( ATBuffer );
     if( ATDelayFunction != 0 ) ( *ATDelayFunction )( ATDelay );
 }
 
 void ATAcceptCall( ) //Accept incoming call
 {
-    ( *ATOutputFunction )( "ATA" );
+    ( *ATOutputFunction )( "ATA\n\r" );
     if( ATDelayFunction != 0 ) ( *ATDelayFunction )( ATDelay );
 }
 
 void ATRejectCall( ) //Reject incoming call
 {
-    ( *ATOutputFunction )( "ATH" );
+    ( *ATOutputFunction )( "ATH\n\r" );
     if( ATDelayFunction != 0 ) ( *ATDelayFunction )( ATDelay );
 }
 
@@ -47,31 +47,50 @@ void ATRejectCall( ) //Reject incoming call
 
 void ATSendSMS( const char *Number, const char *Text ) //Send given text to given phone number
 {
-    ( *ATOutputFunction )( "AT+CMGF=1" ); //Init sending SMS message
-    if( ATDelayFunction != 0 ) ( *ATDelayFunction )( ATDelay );
+    ATEnableTextMode( );
 
-    sprintf( ATBuffer, "AT+CMGS=\"%s\"", Number ); //Concatenate phone number with command
+    sprintf( ATBuffer, "AT+CMGS=\"%s\"\n\r", Number ); //Concatenate phone number with command
     ( *ATOutputFunction )( ATBuffer );
     if( ATDelayFunction != 0 ) ( *ATDelayFunction )( ATDelay );
 
     ( *ATOutputFunction )( Text ); //Output message text
     if( ATDelayFunction != 0 ) ( *ATDelayFunction )( ATDelay );
 
-    sprintf( ATBuffer, "%c", 26 ); //Create Ctrl+Z escape code to end transmission
+    sprintf( ATBuffer, "%c\n\r", 26 ); //Create Ctrl+Z escape code to end transmission
     ( *ATOutputFunction )( ATBuffer );
     if( ATDelayFunction != 0 ) ( *ATDelayFunction )( ATDelay );
 }
 
+void ATReadSMS( int ID ) //Send command to read SMS
+{
+    ATEnableTextMode( );
+
+    sprintf( ATBuffer, "AT+CMGR=%d\n\r", ID );
+    ( *ATOutputFunction )( ATBuffer );
+    if( ATDelayFunction != 0 ) ( *ATDelayFunction )( ATDelay );
+}
 ////Other functions////
 
 void AT( ) //Send AT command to check if everything is OK
 {
-    ( *ATOutputFunction )( "AT" );
+    ( *ATOutputFunction )( "AT\n\r" );
     if( ATDelayFunction != 0 ) ( *ATDelayFunction )( ATDelay );
 }
 
-void ATSignalQuality( )
+void ATSignalQuality( ) //Check signal quality
 {
-    ( *ATOutputFunction )( "AT+CSQ" );
+    ( *ATOutputFunction )( "AT+CSQ\n\r" );
+    if( ATDelayFunction != 0 ) ( *ATDelayFunction )( ATDelay );
+}
+
+void ATEnableTextMode( ) //Switch to text mode instead of PDU mode
+{
+    ( *ATOutputFunction )( "AT+CMGF=1\n\r" ); //Set text mode instead of PDU mode
+    if( ATDelayFunction != 0 ) ( *ATDelayFunction )( ATDelay );
+}
+
+void ATEnablePDUMode( ) //Set PDU mode instead of text mode
+{
+    ( *ATOutputFunction )( "AT+CMGF=0\n\r" ); //Set PDU mode instead of text mode
     if( ATDelayFunction != 0 ) ( *ATDelayFunction )( ATDelay );
 }
