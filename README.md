@@ -13,6 +13,8 @@ For example, sending **SMS** takes only one call!
  - Dialing 
  - Call accepting or rejecting
  - Sending **SMS**
+ - Reading **SMS** *(but not interpreting response)*
+ - Switching between PDU and text mode
  - Checking signal quality
  - *Many more incoming*
 
